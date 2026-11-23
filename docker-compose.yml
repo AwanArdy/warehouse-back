@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: warehouse_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: warehouse_user
+      POSTGRES_PASSWORD: warehouse_secret
+      POSTGRES_DB: warehouse_db
+      TZ: Asia/Makassar
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U warehouse_user -d warehouse_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: warehouse_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgres://warehouse_user:warehouse_secret@postgres:5432/warehouse_db
+      DB_POOL_MAX: 20
+      DB_IDLE_TIMEOUT_MS: 30000
+      DB_CONNECTION_TIMEOUT_MS: 5000
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /app/storage
+      JWT_ACCESS_SECRET: ganti_dengan_random_secret_minimal_32_karakter_aman
+      JWT_REFRESH_SECRET: ganti_dengan_refresh_secret_minimal_32_karakter_beda
+      LATEX_BIN: xelatex
+      LATEX_TIMEOUT_MS: 10000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./storage:/app/storage
+
+volumes:
+  postgres_data:
