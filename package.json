@@ -9,6 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/**/*.test.ts test/**/*.test.ts",
+    "test:integration": "tsx --test test/integration.test.ts",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.ts\"",
     "migrate:up": "dotenv -e .env -- node-pg-migrate up",

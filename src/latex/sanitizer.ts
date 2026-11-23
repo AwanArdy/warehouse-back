@@ -32,17 +32,32 @@ export function escapeLatex(value: string | number | boolean | null | undefined)
     return '-';
   }
 
-  return str
-    .replace(/\\/g, '\\textbackslash{}')
-    .replace(/\{/g, '\\{')
-    .replace(/\}/g, '\\}')
-    .replace(/\$/g, '\\$')
-    .replace(/&/g, '\\&')
-    .replace(/#/g, '\\#')
-    .replace(/_/g, '\\_')
-    .replace(/%/g, '\\%')
-    .replace(/~/g, '\\textasciitilde{}')
-    .replace(/\^/g, '\\textasciicircum{}');
+  return str.replace(/([\\{}$&#_%~^])/g, (_match, char) => {
+    switch (char) {
+      case '\\':
+        return '\\textbackslash{}';
+      case '{':
+        return '\\{';
+      case '}':
+        return '\\}';
+      case '$':
+        return '\\$';
+      case '&':
+        return '\\&';
+      case '#':
+        return '\\#';
+      case '_':
+        return '\\_';
+      case '%':
+        return '\\%';
+      case '~':
+        return '\\textasciitilde{}';
+      case '^':
+        return '\\textasciicircum{}';
+      default:
+        return char;
+    }
+  });
 }
 
 export function escapeLatexMultiline(

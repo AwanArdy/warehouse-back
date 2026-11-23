@@ -4,14 +4,27 @@ import { gateController } from './controllers/gate.controller.js';
 import { masterController } from './controllers/master.controller.js';
 import { cargoController } from './controllers/cargo.controller.js';
 import { documentController } from './controllers/document.controller.js';
+import { handleOpenApiJson, handleSwaggerUi } from './docs/openapi.js';
 import { authenticate, requirePermission } from './middlewares/auth.middleware.js';
+import { cors } from './middlewares/cors.middleware.js';
+import { createRateLimiter } from './middlewares/rate-limiter.middleware.js';
+import { securityHeaders } from './middlewares/security.middleware.js';
 import { errorHandler } from './utils/errors.js';
 import { checkSystemHealth } from './utils/health.js';
 
 export function createApp() {
   const app = express();
 
+  // M6.2: API Hardening - Security Headers & CORS
+  app.use(securityHeaders);
+  app.use(cors());
+
   app.use(express.json({ limit: '1mb' }));
+
+  // M6.1: OpenAPI 3.1 & Interactive Documentation (Swagger UI)
+  app.get('/openapi.json', handleOpenApiJson);
+  app.get('/api-docs', handleSwaggerUi);
+  app.get('/docs', handleSwaggerUi);
 
   app.get('/health', async (_req: Request, res: Response) => {
     const health = await checkSystemHealth();
@@ -19,11 +32,25 @@ export function createApp() {
     res.status(httpStatus).json(health);
   });
 
+  // M6.2: Rate Limiting
+  const apiLimiter = createRateLimiter({
+    windowMs: 60 * 1000,
+    maxRequests: 1000,
+    message: 'Batas frekuensi permintaan API tercapai. Silakan coba beberapa saat lagi.',
+  });
+  app.use('/api/', apiLimiter);
+
+  const loginLimiter = createRateLimiter({
+    windowMs: 60 * 1000,
+    maxRequests: 50,
+    message: 'Terlalu banyak percobaan login dari IP ini. Silakan coba 1 menit lagi.',
+  });
+
   // =========================================================================
   // Auth & RBAC Endpoints (Milestone 2)
   // =========================================================================
   app.post('/api/v1/auth/bootstrap-admin', (req, res) => authController.bootstrapAdmin(req, res));
-  app.post('/api/v1/auth/login', (req, res) => authController.login(req, res));
+  app.post('/api/v1/auth/login', loginLimiter, (req, res) => authController.login(req, res));
   app.post('/api/v1/auth/refresh', (req, res) => authController.refresh(req, res));
   app.post('/api/v1/auth/logout', (req, res) => authController.logout(req, res));
 
