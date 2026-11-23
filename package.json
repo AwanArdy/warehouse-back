@@ -14,9 +14,9 @@
     "seed": "tsx src/db/seed.ts",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.ts\"",
-    "migrate:up": "dotenv -e .env -- node-pg-migrate up",
-    "migrate:down": "dotenv -e .env -- node-pg-migrate down",
-    "migrate:reset": "dotenv -e .env -- node-pg-migrate down 0 && dotenv -e .env -- node-pg-migrate up",
+    "migrate:up": "node --env-file=.env node_modules/.bin/node-pg-migrate up",
+    "migrate:down": "node --env-file=.env node_modules/.bin/node-pg-migrate down",
+    "migrate:reset": "node --env-file=.env node_modules/.bin/node-pg-migrate down 0 && node --env-file=.env node_modules/.bin/node-pg-migrate up",
     "migrate:create": "node-pg-migrate create"
   },
   "dependencies": {

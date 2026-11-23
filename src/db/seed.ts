@@ -5,6 +5,27 @@ import { logger } from '../utils/logger.js';
 export async function runSeed(): Promise<void> {
   logger.info('Menjalankan database seed...');
 
+  // Ensure sequence tables exist
+  await executeQuery(
+    pool,
+    `CREATE TABLE IF NOT EXISTS gate_ticket_sequences (
+       period_ymd VARCHAR(8) PRIMARY KEY,
+       last_number INT NOT NULL DEFAULT 0 CHECK (last_number >= 0)
+     )`,
+  );
+
+  await executeQuery(
+    pool,
+    `CREATE TABLE IF NOT EXISTS document_sequences (
+       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+       doc_type doc_type NOT NULL,
+       warehouse_code VARCHAR(20) NOT NULL,
+       period_ym VARCHAR(6) NOT NULL,
+       last_number INT NOT NULL DEFAULT 0 CHECK (last_number >= 0),
+       UNIQUE (doc_type, warehouse_code, period_ym)
+     )`,
+  );
+
   const passAdmin = await authService.hashPassword('PasswordAdmin123!');
   const passPetugas = await authService.hashPassword('PasswordPetugas123!');
   const passGudang = await authService.hashPassword('PasswordGudang123!');

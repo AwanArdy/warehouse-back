@@ -19,6 +19,11 @@ CREATE TABLE gate_transactions (
     CONSTRAINT chk_gate_out_after_in CHECK (gate_out_at IS NULL OR gate_out_at >= gate_in_at)
 );
 
+CREATE TABLE IF NOT EXISTS gate_ticket_sequences (
+    period_ymd VARCHAR(8) PRIMARY KEY,
+    last_number INT NOT NULL DEFAULT 0 CHECK (last_number >= 0)
+);
+
 CREATE TRIGGER trg_gate_transactions_updated_at
 BEFORE UPDATE ON gate_transactions FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();
 

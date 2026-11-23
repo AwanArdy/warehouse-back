@@ -91,6 +91,18 @@ export class DocumentRepository {
     docType: DocType,
     warehouseCode: string,
   ): Promise<{ documentNumber: string; periodYm: string }> {
+    await executeQuery(
+      db,
+      `CREATE TABLE IF NOT EXISTS document_sequences (
+         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+         doc_type doc_type NOT NULL,
+         warehouse_code VARCHAR(20) NOT NULL,
+         period_ym VARCHAR(6) NOT NULL,
+         last_number INT NOT NULL DEFAULT 0 CHECK (last_number >= 0),
+         UNIQUE (doc_type, warehouse_code, period_ym)
+       )`,
+    );
+
     const res = await executeQuery<{ period_ym: string; last_number: number }>(
       db,
       `WITH current_period AS (
