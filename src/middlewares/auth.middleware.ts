@@ -19,15 +19,16 @@ export async function authenticate(
   _res: Response,
   next: NextFunction,
 ): Promise<void> {
+  let token: string | undefined;
   const header = req.headers.authorization;
-  if (!header || !header.startsWith('Bearer ')) {
-    next(new UnauthorizedError('Header Authorization Bearer wajib disertakan'));
-    return;
+  if (header && header.startsWith('Bearer ')) {
+    token = header.slice('Bearer '.length).trim();
+  } else if (typeof req.query.token === 'string' && req.query.token.trim().length > 0) {
+    token = req.query.token.trim();
   }
 
-  const token = header.slice('Bearer '.length).trim();
   if (!token) {
-    next(new UnauthorizedError('Token autentikasi kosong'));
+    next(new UnauthorizedError('Header Authorization Bearer wajib disertakan'));
     return;
   }
 

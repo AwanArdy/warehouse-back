@@ -18,6 +18,8 @@ export interface OfficialDocumentEntity {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  ticketNumber?: string | null;
+  plateNumber?: string | null;
 }
 
 export interface QueuedLatexJob {
@@ -43,6 +45,8 @@ interface OfficialDocRow extends QueryResultRow {
   issued_at: Date | null;
   voided_by_doc_id: string | null;
   void_reason: string | null;
+  ticket_number?: string | null;
+  plate_number?: string | null;
   created_by: string;
   created_at: Date;
   updated_at: Date;
@@ -69,6 +73,8 @@ function mapOfficialDocRow(row: OfficialDocRow): OfficialDocumentEntity {
     issuedAt: row.issued_at,
     voidedByDocId: row.voided_by_doc_id,
     voidReason: row.void_reason,
+    ticketNumber: row.ticket_number ?? null,
+    plateNumber: row.plate_number ?? null,
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -375,13 +381,16 @@ export class DocumentRepository {
     const res = await executeQuery<OfficialDocRow & { total_count: string }>(
       db,
       `SELECT
-         id, document_number, gate_transaction_id, doc_type, status,
-         storage_path, file_sha256, error_log, retry_count, issued_at,
-         voided_by_doc_id, void_reason, created_by, created_at, updated_at,
+         od.id, od.document_number, od.gate_transaction_id, od.doc_type, od.status,
+         od.storage_path, od.file_sha256, od.error_log, od.retry_count, od.issued_at,
+         od.voided_by_doc_id, od.void_reason, od.created_by, od.created_at, od.updated_at,
+         gt.ticket_number, v.plate_number,
          COUNT(*) OVER()::text AS total_count
-       FROM official_documents
+       FROM official_documents od
+       LEFT JOIN gate_transactions gt ON gt.id = od.gate_transaction_id
+       LEFT JOIN vehicles v ON v.id = gt.vehicle_id
        ${whereClause}
-       ORDER BY created_at DESC
+       ORDER BY od.created_at DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params,
     );

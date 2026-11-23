@@ -36,6 +36,7 @@ coverage/
 *.synctex.gz
 *.fdb_latexmk
 *.xdv
+*.pdf
 
 # OS and editors
 .DS_Store

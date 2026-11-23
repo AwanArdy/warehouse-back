@@ -47,6 +47,7 @@ export interface WarehouseUtilizationSummary {
   usedVolumeM3: number;
   remainingVolumeM3: number;
   utilizationPercent: number;
+  utilizationPercentage?: number;
   totalDistinctItems: number;
 }
 
@@ -226,6 +227,7 @@ export class InventoryRepository {
       usedVolumeM3: Number(usedVol.toFixed(4)),
       remainingVolumeM3: remainingVol,
       utilizationPercent: utilPercent,
+      utilizationPercentage: utilPercent,
       totalDistinctItems: Number(row.total_distinct_items),
     };
   }
@@ -264,6 +266,7 @@ export class InventoryRepository {
       warehouseCode: r.warehouse_code,
       itemId: r.item_id,
       skuCode: r.sku_code,
+      name: r.item_name,
       itemName: r.item_name,
       unit: r.unit,
       unitVolumeM3: Number(r.unit_volume_m3),

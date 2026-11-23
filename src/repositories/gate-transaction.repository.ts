@@ -28,6 +28,16 @@ export interface GateTransactionRowEntity {
 }
 
 export interface GateTransactionDetailEntity extends GateTransactionRowEntity {
+  plateNumber?: string;
+  vType?: VehicleType;
+  companyName?: string;
+  maxWeightKg?: number;
+  dockNumber?: string | null;
+  warehouseCode?: string;
+  warehouseName?: string;
+  containerNumber?: string | null;
+  containerSize?: ContainerSize | null;
+  sealNumber?: string | null;
   vehicle: {
     plateNumber: string;
     vType: VehicleType;
@@ -132,6 +142,16 @@ function mapBaseGateTxRow(row: RawGateTxRow): GateTransactionRowEntity {
 function mapJoinedGateTxRow(row: RawJoinedGateTxRow): GateTransactionDetailEntity {
   return {
     ...mapBaseGateTxRow(row),
+    plateNumber: row.plate_number,
+    vType: row.v_type,
+    companyName: row.company_name,
+    maxWeightKg: Number(row.max_weight_kg),
+    dockNumber: row.dock_number ?? null,
+    warehouseCode: row.warehouse_code,
+    warehouseName: row.warehouse_name,
+    containerNumber: row.container_number ?? null,
+    containerSize: row.container_size ?? null,
+    sealNumber: row.seal_number ?? null,
     vehicle: {
       plateNumber: row.plate_number,
       vType: row.v_type,

@@ -9,6 +9,12 @@ import { latexCompilerWorker } from './workers/latex-compiler.worker.js';
 async function bootstrap(): Promise<void> {
   await documentStorage.init();
 
+  const userCountRes = await pool.query('SELECT COUNT(*)::text AS count FROM users');
+  if (Number(userCountRes.rows[0]?.count ?? '0') === 0) {
+    const { runSeed } = await import('./db/seed.js');
+    await runSeed();
+  }
+
   const initialHealth = await checkSystemHealth();
   logger.info({ health: initialHealth }, 'Hasil pemeriksaan awal infrastruktur');
 
