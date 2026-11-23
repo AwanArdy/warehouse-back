@@ -13,7 +13,7 @@ async function bootstrap(): Promise<void> {
   logger.info({ health: initialHealth }, 'Hasil pemeriksaan awal infrastruktur');
 
   const app = createApp();
-  const server = app.listen(env.PORT, () => {
+  const server = app.listen(env.PORT, '0.0.0.0', () => {
     logger.info(`Warehouse Administration API berjalan pada port ${env.PORT} (${env.NODE_ENV})`);
     latexCompilerWorker.start();
   });

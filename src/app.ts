@@ -3,6 +3,7 @@ import { authController } from './controllers/auth.controller.js';
 import { gateController } from './controllers/gate.controller.js';
 import { masterController } from './controllers/master.controller.js';
 import { cargoController } from './controllers/cargo.controller.js';
+import { documentController } from './controllers/document.controller.js';
 import { authenticate, requirePermission } from './middlewares/auth.middleware.js';
 import { errorHandler } from './utils/errors.js';
 import { checkSystemHealth } from './utils/health.js';
@@ -144,6 +145,34 @@ export function createApp() {
     authenticate,
     requirePermission('inventory:read'),
     (req, res) => cargoController.listStockMovements(req, res),
+  );
+
+  // =========================================================================
+  // Official Documents & LaTeX Compilation (Milestone 5)
+  // =========================================================================
+  app.get('/api/v1/documents', authenticate, requirePermission('doc:read'), (req, res) =>
+    documentController.listDocuments(req, res),
+  );
+  app.get('/api/v1/documents/:id', authenticate, requirePermission('doc:read'), (req, res) =>
+    documentController.getDocumentDetail(req, res),
+  );
+  app.get('/api/v1/documents/:id/pdf', authenticate, requirePermission('doc:read'), (req, res) =>
+    documentController.downloadPdf(req, res),
+  );
+  app.post(
+    '/api/v1/gate/transactions/:id/documents',
+    authenticate,
+    requirePermission('doc:generate'),
+    (req, res) => documentController.generateForTransaction(req, res),
+  );
+  app.post('/api/v1/documents/daily-recap', authenticate, requirePermission('doc:generate'), (req, res) =>
+    documentController.generateDailyRecap(req, res),
+  );
+  app.post('/api/v1/documents/:id/void', authenticate, requirePermission('doc:void'), (req, res) =>
+    documentController.voidDocument(req, res),
+  );
+  app.post('/api/v1/documents/:id/retry', authenticate, requirePermission('doc:generate'), (req, res) =>
+    documentController.retryDocument(req, res),
   );
 
   app.use(errorHandler);

@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { ZodError } from "zod/v4";
+import { ZodError } from "zod";
 import { logger } from "./logger.js";
 
 export class AppError extends Error {
@@ -41,7 +41,7 @@ export class ForbiddenError extends AppError {
 
 export class NotFoundError extends AppError {
   constructor(message = 'Data yang diminta tidak ditemukan', code = 'NOT_FOUND') {
-    super(403, code, message);
+    super(404, code, message);
   }
 }
 
