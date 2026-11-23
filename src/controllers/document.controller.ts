@@ -55,6 +55,9 @@ export class DocumentController {
     const docId = getRouteParam(req, 'id', 'ID dokumen');
     const file = await documentService.getCompiledPdfBuffer(docId);
 
+    // Hapus batasan X-Frame-Options agar dokumen dapat dipratinjau dalam iframe di antarmuka web
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Content-Security-Policy', "frame-ancestors *");
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
     res.setHeader('X-Document-SHA256', file.sha256);

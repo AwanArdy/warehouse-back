@@ -1,0 +1,26 @@
+#!/bin/bash
+OUTPUT_DIR="."
+PREV=""
+for arg in "$@"; do
+  if [ "$PREV" = "-output-directory" ]; then
+    OUTPUT_DIR="$arg"
+  fi
+  PREV="$arg"
+done
+
+cat << 'EOF' > "$OUTPUT_DIR/document.pdf"
+%PDF-1.4
+1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
+2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
+3 0 obj<</Type/Page/MediaBox[0 0 595 842]/Parent 2 0 R/Resources<<>>>>endobj
+xref
+0 4
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000117 00000 n 
+trailer<</Size 4/Root 1 0 R>>
+startxref
+212
+%%EOF
+exit 0
